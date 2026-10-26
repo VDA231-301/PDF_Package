@@ -1,0 +1,35 @@
+{
+  "schema_version": "0.1.0",
+  "package_uuid": "20000000-0000-4000-8000-000000000002",
+  "created_at": "2026-10-26T12:00:00Z",
+  "main_project": {
+    "file_uuid": "10000000-0000-4000-8000-000000000001",
+    "name": "initial-sample-inspection-report.json",
+    "mime_type": "application/json",
+    "size": 2048,
+    "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+    "schema": "https://example.org/vda/schema-placeholder/0.1.0",
+    "schema_version": "0.1.0"
+  },
+  "sub_projects": [
+    {
+      "file_uuid": "10000000-0000-4000-8000-000000000005",
+      "name": "tensile-test-lab-report.json",
+      "mime_type": "application/json",
+      "size": 10240,
+      "sha256": "5555555555555555555555555555555555555555555555555555555555555555",
+      "schema": "https://example.org/vda/schema-placeholder/0.1.0",
+      "schema_version": "0.1.0"
+    },
+    {
+      "file_uuid": "10000000-0000-4000-8000-000000000006",
+      "name": "emission-test-lab-report.json",
+      "mime_type": "application/json",
+      "size": 12288,
+      "sha256": "6666666666666666666666666666666666666666666666666666666666666666",
+      "schema": "https://example.org/vda/schema-placeholder/0.1.0",
+      "schema_version": "0.1.0"
+    }
+  ],
+  "attachments": []
+}

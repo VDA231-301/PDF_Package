@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "VDA 231-301 PDF Package manifest",
+  "description": "Draft 0.1.0. One main VDA 231-301 project document, zero or more sub-project documents, and embedded attachments. Documents own attachment relationships.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "package_uuid",
+    "created_at",
+    "main_project",
+    "sub_projects",
+    "attachments"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.1.0",
+      "description": "Version of the manifest contract."
+    },
+    "package_uuid": {
+      "$ref": "#/$defs/uuid"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Package creation time, including a UTC offset.",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}[Tt]\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:[Zz]|[+-]\\d{2}:\\d{2})$"
+    },
+    "main_project": {
+      "$ref": "#/$defs/document",
+      "description": "The single VDA 231-301 document for the main project."
+    },
+    "sub_projects": {
+      "type": "array",
+      "description": "VDA 231-301 documents for sub-projects of the main project. May be empty.",
+      "items": {
+        "$ref": "#/$defs/document"
+      }
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/file"
+      }
+    }
+  },
+  "$defs": {
+    "uuid": {
+      "type": "string",
+      "format": "uuid",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "description": "UUID in lowercase hyphenated form."
+    },
+    "file": {
+      "type": "object",
+      "required": [
+        "file_uuid",
+        "name",
+        "mime_type",
+        "size",
+        "sha256"
+      ],
+      "properties": {
+        "file_uuid": {
+          "$ref": "#/$defs/uuid"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable filename. Not a path or a lookup key."
+        },
+        "mime_type": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9!#$&^_.+-]+/[A-Za-z0-9!#$&^_.+-]+$",
+          "description": "Media type without parameters."
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of original file bytes after PDF stream decoding."
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "SHA-256 digest of the original file bytes, in lowercase hexadecimal."
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "document": {
+      "type": "object",
+      "required": [
+        "file_uuid",
+        "name",
+        "mime_type",
+        "size",
+        "sha256",
+        "schema",
+        "schema_version"
+      ],
+      "properties": {
+        "file_uuid": {
+          "$ref": "#/$defs/uuid"
+        },
+        "name": {
+          "$ref": "#/$defs/file/properties/name"
+        },
+        "mime_type": {
+          "const": "application/json"
+        },
+        "size": {
+          "$ref": "#/$defs/file/properties/size"
+        },
+        "sha256": {
+          "$ref": "#/$defs/file/properties/sha256"
+        },
+        "schema": {
+          "type": "string",
+          "format": "uri",
+          "description": "Absolute identifier of the VDA schema used to validate this payload. Not a payload download URL.",
+          "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+        },
+        "schema_version": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Version of the payload schema; independent of the manifest version."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
