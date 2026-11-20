@@ -49,40 +49,6 @@ The package adds a container and transport layer. It does not replace the
 VDA 231-301 Generic Schema, application-specific subschemas, payload validation,
 or application-specific business rules.
 
-### PDF/A background and boundaries
-
-PDF/A is a family of PDF profiles for the long-term preservation of electronic
-documents, defined in the ISO 19005 series.
-
-PDF/A-3 permits embedded files of arbitrary types. PDF/A-4f provides an
-alternative for embedded-file use cases based on PDF 2.0. These profiles are not
-interchangeable without considering implementation and validation requirements.
-
-The package specification needs to identify the complete required PDF/A profile,
-not only the general designation "PDF/A".
-
-The selected profile and package rules need to define:
-
-- permitted embedded-file types;
-- PDF-level associations, including applicable AFRelationship values;
-- embedded-file metadata requirements; and
-- the PDF/A validation procedure.
-
-PDF-level associations do not replace the domain-specific attachment
-relationships defined in the VDA payloads.
-
-PDF/A conformance alone does not demonstrate:
-
-- VDA 231-301 payload conformance;
-- manifest or inventory correctness;
-- agreement between the report and payloads;
-- authenticity of the sender;
-- safety of embedded files; or
-- compliance with application-specific business rules.
-
-A PDF/A declaration in metadata is not proof of conformance. The enclosing PDF
-needs to be checked with a suitable validator for the selected profile.
-
 ### Related approach: ZUGFeRD / Factur-X
 
 ZUGFeRD / Factur-X combines a human-readable PDF/A-3 invoice with embedded
@@ -215,34 +181,6 @@ Use-case-specific rules should define which information must agree, how report
 content maps to payload content, and which differences are acceptable. A
 universal automated comparison is not defined by this draft.
 
-### Validation levels and reporting
-
-Validation results should identify which checks were performed. Passing one
-validation level does not imply that the other levels have passed.
-
-| Level | Scope |
-|---|---|
-| PDF/A conformance | Conformance of the enclosing PDF to the selected PDF/A profile |
-| Manifest conformance | Validation of manifest.json against the manifest schema |
-| Inventory integrity | Resolution of embedded files and verification of uniqueness, decoded sizes, media types, and hashes |
-| Payload conformance | Validation of each payload against its declared VDA schema |
-| Attachment-reference integrity | Resolution of payload attachment references once the required Generic Schema extension is defined |
-| Semantic consistency | Agreement of overlapping business information in report and payloads |
-| Business validation | Application-specific completeness, plausibility, and acceptance rules |
-| Authenticity and trust | Sender or signature verification where required by the receiving process |
-
-A validation report should record:
-
-- the package identifier;
-- the schemas and profiles used;
-- the validators or checking tools and their versions;
-- the result of each applicable validation level; and
-- any failed, unsupported, or unperformed checks.
-
-Checks that were not performed should not be reported as passed.
-A package should not be described simply as "valid" without stating the
-validation scope.
-
 ## Manifest
 
 Embed exactly one UTF-8 JSON manifest under the reserved name `manifest.json`, with
@@ -341,6 +279,39 @@ The final PDF/A conformance level, the possible use of PDF/A-4f, and the mapping
 manifest, payloads, and attachments to `AFRelationship` values remain open for review.
 The manifest schema alone does not settle these PDF-level requirements.
 
+### PDF/A background and boundaries
+
+PDF/A is a family of PDF profiles for the long-term preservation of electronic
+documents, defined in the ISO 19005 series.
+
+PDF/A-3 permits embedded files of arbitrary types. PDF/A-4f provides an
+alternative for embedded-file use cases based on PDF 2.0. These profiles are not
+interchangeable without considering implementation and validation requirements.
+
+The package specification needs to identify the complete required PDF/A profile,
+not only the general designation "PDF/A".
+
+The selected profile and package rules need to define:
+
+- permitted embedded-file types;
+- PDF-level associations, including applicable AFRelationship values;
+- embedded-file metadata requirements; and
+- the PDF/A validation procedure.
+
+PDF-level associations do not replace the domain-specific attachment
+relationships defined in the VDA payloads.
+
+PDF/A conformance alone does not demonstrate:
+
+- VDA 231-301 payload conformance;
+- manifest or inventory correctness;
+- agreement between the report and payloads;
+- authenticity of the sender;
+- safety of embedded files; or
+- compliance with application-specific business rules.
+
+A PDF/A declaration in metadata is not proof of conformance. The enclosing PDF
+needs to be checked with a suitable validator for the selected profile.
 
 ## Validation boundaries
 
@@ -361,6 +332,34 @@ payloads. A manifest that passes schema validation is not proof of a valid packa
 Use a JSON Schema Draft 2020-12 validator with format checks enabled. The default
 2020-12 dialect does not require `format` annotations to act as assertions. See the
 [JSON Schema validation specification](https://json-schema.org/draft/2020-12/json-schema-validation).
+
+### Validation levels and reporting
+
+Validation results should identify which checks were performed. Passing one
+validation level does not imply that the other levels have passed.
+
+| Level | Scope |
+|---|---|
+| PDF/A conformance | Conformance of the enclosing PDF to the selected PDF/A profile |
+| Manifest conformance | Validation of manifest.json against the manifest schema |
+| Inventory integrity | Resolution of embedded files and verification of uniqueness, decoded sizes, media types, and hashes |
+| Payload conformance | Validation of each payload against its declared VDA schema |
+| Attachment-reference integrity | Resolution of payload attachment references once the required Generic Schema extension is defined |
+| Semantic consistency | Agreement of overlapping business information in report and payloads |
+| Business validation | Application-specific completeness, plausibility, and acceptance rules |
+| Authenticity and trust | Sender or signature verification where required by the receiving process |
+
+A validation report should record:
+
+- the package identifier;
+- the schemas and profiles used;
+- the validators or checking tools and their versions;
+- the result of each applicable validation level; and
+- any failed, unsupported, or unperformed checks.
+
+Checks that were not performed should not be reported as passed.
+A package should not be described simply as "valid" without stating the
+validation scope.
 
 ## Reference package and interoperability testing
 
