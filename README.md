@@ -35,6 +35,86 @@ with metadata from the actual files before creating a package. No example payloa
 or binary files are included, and no file-integrity or payload-validation claim is
 made for these examples.
 
+## Purpose and scope
+
+The package supports use cases in which one exchange object must serve both
+human review and automated processing.
+
+The visible PDF pages provide the human-readable report. Embedded VDA 231-301
+JSON documents provide structured data for software systems. The manifest
+identifies the embedded documents and attachments and supports package-level
+integrity checks.
+
+The package adds a container and transport layer. It does not replace the
+VDA 231-301 Generic Schema, application-specific subschemas, payload validation,
+or application-specific business rules.
+
+### PDF/A background and boundaries
+
+PDF/A is a family of PDF profiles for the long-term preservation of electronic
+documents, defined in the ISO 19005 series.
+
+PDF/A-3 permits embedded files of arbitrary types. PDF/A-4f provides an
+alternative for embedded-file use cases based on PDF 2.0. These profiles are not
+interchangeable without considering implementation and validation requirements.
+
+The package specification needs to identify the complete required PDF/A profile,
+not only the general designation "PDF/A".
+
+The selected profile and package rules need to define:
+
+- permitted embedded-file types;
+- PDF-level associations, including applicable AFRelationship values;
+- embedded-file metadata requirements; and
+- the PDF/A validation procedure.
+
+PDF-level associations do not replace the domain-specific attachment
+relationships defined in the VDA payloads.
+
+PDF/A conformance alone does not demonstrate:
+
+- VDA 231-301 payload conformance;
+- manifest or inventory correctness;
+- agreement between the report and payloads;
+- authenticity of the sender;
+- safety of embedded files; or
+- compliance with application-specific business rules.
+
+A PDF/A declaration in metadata is not proof of conformance. The enclosing PDF
+needs to be checked with a suitable validator for the selected profile.
+
+### Related approach: ZUGFeRD / Factur-X
+
+ZUGFeRD / Factur-X combines a human-readable PDF/A-3 invoice with embedded
+structured XML invoice data.
+
+The VDA 231-301 PDF Package uses a comparable hybrid-document principle, but
+addresses a different domain and package structure:
+
+- business data is represented by VDA 231-301 JSON payloads;
+- a package can contain a main payload and multiple sub-project payloads;
+- supporting attachments can be embedded separately; and
+- a manifest inventories the embedded payloads and attachments.
+
+This comparison is informative only. It does not imply ZUGFeRD / Factur-X
+conformance or import its invoice-specific rules, precedence rules, or legal
+treatment into this draft.
+
+VDA-specific consistency rules, attachment references, and validation
+requirements need to be defined independently.
+
+### Terminology: payload
+
+A payload is a concrete VDA 231-301 JSON document containing the business data
+being exchanged. Both the main project document and each sub-project document
+are payloads.
+
+A payload is not the manifest, a JSON Schema, the visible report, or a separately
+embedded binary attachment.
+
+The manifest describes the package inventory. The applicable VDA 231-301 schema
+defines the structure of each payload. These are separate validation layers.
+
 ## Package structure
 
 A package is one PDF document. Its pages contain the main report. Its embedded files
@@ -76,6 +156,92 @@ its original file bytes.
 This draft supports embedded files only. It does not define external attachment
 URLs or automatic downloads. A payload schema identifier identifies a schema; it
 is not an external attachment location.
+
+## Authoring principle
+
+> Proposed guidance for project-group review.
+
+The preferred authoring approach is to generate the visible report and the
+VDA 231-301 payloads from the same authoritative source data and the same
+revision of that data.
+
+Report and payload should not be maintained independently where this can
+reasonably be avoided.
+
+This approach reduces the risk of inconsistencies but does not prove that the
+representations agree. Rendering, mapping, rounding, and data-selection errors
+can still occur.
+
+The report may summarize information contained in several payloads. It does not
+need to reproduce every payload field. The scope of the summary and the
+relationship to the underlying documents should be clear.
+
+## Report and payload consistency
+
+> Proposed guidance for project-group review. This section does not establish
+> legal precedence between the report and the payloads.
+
+Receiving systems use the validated VDA 231-301 payloads for automated data
+processing. The visible report provides the human-readable representation
+and context.
+
+Where both representations describe the same business information, they should
+agree in meaning. Consistency does not require identical text formatting:
+decimal separators, unit conversions, rounding, and summaries may differ if
+their interpretation is defined and does not change the result.
+
+Depending on the use case, consistency checks may cover:
+
+- report identifiers and revisions;
+- component and specimen identifiers;
+- test methods and conditions;
+- reported values and units;
+- target values or limits;
+- assessments or verdicts; and
+- qualifications, deviations, and limitations relevant to interpretation.
+
+A technically valid payload does not automatically override a conflicting
+report. If a relevant conflict is detected, the receiving system should:
+
+1. identify and report the conflict;
+2. prevent automatic acceptance of the affected result;
+3. preserve both representations without silently overwriting either; and
+4. route the conflict through the applicable clarification process.
+
+A file hash verifies file integrity against the recorded digest. It does not
+prove semantic consistency between the report and the payloads.
+
+Use-case-specific rules should define which information must agree, how report
+content maps to payload content, and which differences are acceptable. A
+universal automated comparison is not defined by this draft.
+
+### Validation levels and reporting
+
+Validation results should identify which checks were performed. Passing one
+validation level does not imply that the other levels have passed.
+
+| Level | Scope |
+|---|---|
+| PDF/A conformance | Conformance of the enclosing PDF to the selected PDF/A profile |
+| Manifest conformance | Validation of manifest.json against the manifest schema |
+| Inventory integrity | Resolution of embedded files and verification of uniqueness, decoded sizes, media types, and hashes |
+| Payload conformance | Validation of each payload against its declared VDA schema |
+| Attachment-reference integrity | Resolution of payload attachment references once the required Generic Schema extension is defined |
+| Semantic consistency | Agreement of overlapping business information in report and payloads |
+| Business validation | Application-specific completeness, plausibility, and acceptance rules |
+| Authenticity and trust | Sender or signature verification where required by the receiving process |
+
+A validation report should record:
+
+- the package identifier;
+- the schemas and profiles used;
+- the validators or checking tools and their versions;
+- the result of each applicable validation level; and
+- any failed, unsupported, or unperformed checks.
+
+Checks that were not performed should not be reported as passed.
+A package should not be described simply as "valid" without stating the
+validation scope.
 
 ## Manifest
 
@@ -175,15 +341,6 @@ The final PDF/A conformance level, the possible use of PDF/A-4f, and the mapping
 manifest, payloads, and attachments to `AFRelationship` values remain open for review.
 The manifest schema alone does not settle these PDF-level requirements.
 
-## Report and payload consistency
-
-The sender is responsible for consistency between the main report and the payloads.
-A file hash can detect a change to file bytes. It cannot show that a report and a
-payload describe the same result.
-
-This draft does not establish which representation takes precedence when their
-contents conflict. A receiving system must report such a conflict for resolution.
-It must not silently replace one representation with the other.
 
 ## Validation boundaries
 
@@ -205,6 +362,54 @@ Use a JSON Schema Draft 2020-12 validator with format checks enabled. The defaul
 2020-12 dialect does not require `format` annotations to act as assertions. See the
 [JSON Schema validation specification](https://json-schema.org/draft/2020-12/json-schema-validation).
 
+## Reference package and interoperability testing
+
+> Proposed acceptance criteria for a future interoperability release.
+
+The repository should provide complete reference packages in addition to
+illustrative manifest examples.
+
+A reference package should contain:
+
+- a readable report on the PDF pages;
+- exactly one manifest.json;
+- one main VDA 231-301 JSON payload;
+- additional sub-project payloads where the scenario requires them;
+- supporting attachments where the scenario requires them;
+- actual file sizes and SHA-256 digests;
+- resolvable package-internal file relationships; and
+- identified payload schemas without illustrative placeholder identifiers.
+
+Validation evidence should accompany each reference package. It should identify
+the PDF/A profile, schema versions, checking tools, and expected results.
+
+A baseline reference package can demonstrate the main payload without separately
+referenced attachments.
+
+A reference package demonstrating payload-to-attachment references depends on
+the corresponding Generic Schema extension. Until that extension is available,
+such a scenario should be labelled as a proposal and should not claim
+conformance with an unchanged schema that does not support it.
+
+Interoperability testing should include extraction and processing by a reader
+implemented independently of the package writer.
+
+Tests should verify that the reader can:
+
+1. discover the manifest;
+2. resolve the embedded files using the defined matching rules;
+3. verify the inventory and file integrity;
+4. validate the payloads;
+5. resolve supported attachment references; and
+6. report relevant consistency or business-rule failures.
+
+Negative test cases should include missing files, unlisted files, incorrect
+hashes, ambiguous file matches, invalid payloads, and relevant report-to-payload
+conflicts.
+
+Successful processing by the writer's own reader alone is not sufficient
+evidence of interoperability.
+
 ## Integrity and safe processing
 
 Calculate SHA-256 hashes over the original file bytes after extraction and PDF stream
@@ -219,6 +424,23 @@ Treat embedded files as untrusted input. Do not execute their contents. Apply lo
 limits to package size, extracted file size, file count, and parser resource use.
 Treat embedded filenames as display labels, not as filesystem paths. Do not use
 them directly to write files outside a controlled extraction directory.
+
+## Proposed decisions for project-group review
+
+The following points should be resolved or explicitly deferred before an
+interoperability release:
+
+- confirm the complete PDF/A profile and PDF-level association rules;
+- define the handling of relevant conflicts between report and payloads;
+- define use-case-specific consistency checks;
+- complete the Generic Schema extension for separately embedded attachments;
+- document compatibility with existing inline Base64 attachments;
+- define validation evidence and reference-package acceptance criteria; and
+- demonstrate interoperability with an independently implemented reader.
+
+These proposals do not change the current manifest contract, the two-level
+project structure, the flat embedded-file structure, or the existing
+hash-based file-matching rules.
 
 ## License
 
